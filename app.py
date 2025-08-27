@@ -1,20 +1,20 @@
-# app.py
+
 import sys
 import os
 import io
 from flask import Flask, request, jsonify, render_template
 
-
 project_root = os.path.abspath(os.path.dirname(__file__))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
-
 
 from core.logica_ia import classificar_email, extrair_nome
 from core.respostas import gerar_resposta
 from core.utils import extrair_texto_pdf
 
 app = Flask(__name__)
+
+
 
 @app.route('/')
 def index():
