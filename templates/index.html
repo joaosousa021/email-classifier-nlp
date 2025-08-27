@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classificador de Emails com IA</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📧</text></svg>"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>
+        <span class="highlight">Classificador e Gerador</span> de Respostas de
+        Emails<span class="highlight">.</span>
+      </h1>
+
+      <p class="intro">
+        Cole o texto do seu email ou faça o upload de um arquivo (.txt ou .pdf)
+        para classificá-lo e obter uma sugestão de resposta.
+      </p>
+
+      <div class="card">
+        <form id="email-form">
+          <label for="email_text">Cole o texto do email aqui:</label>
+          <textarea id="email_text" name="email_text" rows="8"></textarea>
+
+          <label for="email_file">Ou faça o upload de um arquivo:</label>
+          <div class="file-upload-wrapper">
+            <span class="file-upload-text">
+              Arraste um arquivo ou
+              <span class="highlight">clique aqui</span> para selecionar
+            </span>
+            <input
+              type="file"
+              id="email_file"
+              name="email_file"
+              accept=".txt,.pdf"
+            />
+            <span id="file-name">Nenhum arquivo escolhido</span>
+          </div>
+          <button type="submit">Processar Email</button>
+        </form>
+      </div>
+
+      <div id="loading" class="resultado" style="display: none">
+        Processando...
+      </div>
+
+      <div id="results" class="resultado" style="display: none">
+        <h2>Resultado da Análise</h2>
+        <div class="result-box">
+          <strong>Categoria:</strong> <span id="categoria"></span>
+        </div>
+        <div class="result-box">
+          <strong>Resposta Sugerida:</strong>
+          <pre id="resposta"></pre>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("email-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const form = event.target;
+          const formData = new FormData(form);
+          const resultsDiv = document.getElementById("results");
+          const loadingDiv = document.getElementById("loading");
+
+          resultsDiv.classList.remove("border-produtivo", "border-improdutivo");
+
+          loadingDiv.style.display = "block";
+          resultsDiv.style.display = "none";
+          resultsDiv.classList.remove("fade-in");
+
+          try {
+            const response = await fetch("/processar", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || `Erro HTTP: ${response.status}`
+              );
+            }
+
+            const result = await response.json();
+
+            document.getElementById("categoria").textContent = result.categoria;
+            document.getElementById("resposta").innerText =
+              result.resposta_sugerida;
+
+            if (result.categoria === "Produtivo") {
+              resultsDiv.classList.add("border-produtivo");
+            } else if (result.categoria === "Improdutivo") {
+              resultsDiv.classList.add("border-improdutivo");
+            }
+            resultsDiv.style.display = "block";
+            resultsDiv.classList.add("fade-in");
+          } catch (error) {
+            alert("Ocorreu um erro: " + error.message);
+          } finally {
+            loadingDiv.style.display = "none";
+          }
+        });
+
+      const fileInput = document.getElementById("email_file");
+      const fileNameSpan = document.getElementById("file-name");
+
+      fileInput.addEventListener("change", function () {
+        if (fileInput.files.length > 0) {
+          fileNameSpan.textContent = fileInput.files[0].name;
+        } else {
+          fileNameSpan.textContent = "Nenhum arquivo escolhido";
+        }
+      });
+    </script>
+
+    <footer>
+      © 2025 João Pedro Sousa Santana —
+      <a
+        href="https://www.linkedin.com/in/jo%C3%A3o-pedro-sousa-santana-758878228/"
+        target="_blank"
+        >LinkedIn</a
+      >
+    </footer>
+  </body>
+</html>
