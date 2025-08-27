@@ -1,79 +1,83 @@
 # Classificador Inteligente de E-mails - Desafio AutoU 🚀
 
-![Status](https://img-shields-io.translate.goog/badge/status-concluído-brightgreen?_x_tr_sl=pt&_x_tr_tl=en&_x_tr_hl=pt-BR&_x_tr_pto=wapp)
+![Status](https://img.shields.io/badge/status-finalizado-brightgreen)
+![Tecnologia](https://img.shields.io/badge/tecnologia-Python%20%7C%20Flask%20%7C%20IA-blue)
 
-Uma aplicação web que usa Inteligência Artificial para classificar e-mails e sugerir respostas personalizadas, automatizando o fluxo de trabalho e liberando tempo para o que realmente importa.
+Uma aplicação web full-stack que utiliza Inteligência Artificial para automatizar a triagem e resposta de e-mails, transformando um processo manual e demorado em uma tarefa inteligente e instantânea.
 
-## 🔗 Links
+---
 
-- **Acesse a aplicação aqui:** `[COLOQUE AQUI O LINK DA SUA APLICAÇÃO NA NUVEM]`
-- **Assista ao vídeo de demonstração:** `[COLOQUE AQUI O LINK DO SEU VÍDEO NO YOUTUBE]`
+## 🎯 Links Essenciais
 
-## 👨‍💻 A Jornada do Desenvolvimento (E os Desafios no Caminho)
+- **Acesse a Aplicação ao Vivo:** `[COLOQUE AQUI O LINK DA SUA APLICAÇÃO NA NUVEM]`
+- **Assista ao Vídeo de Demonstração (5 min):** `[COLOQUE AQUI O LINK DO SEU VÍDEO NO YOUTUBE]`
 
-Construir este projeto foi uma jornada incrível de aprendizado e, como em todo projeto de IA, cheia de desafios interessantes. A ideia inicial era simples, mas garantir que a IA se comportasse de forma profissional e consistente exigiu várias iterações.
+---
 
-### O Primeiro Grande Desafio: A IA "Criativa Demais"
+## 💡 O Problema a Ser Resolvido
 
-Meu plano inicial para as respostas era usar um modelo de linguagem generativo (como o `T5` e o `mT0`). A ideia era que a IA "escrevesse" uma resposta única para cada e-mail.
+Empresas do setor financeiro lidam com um volume altíssimo de e-mails diariamente. Uma equipe gasta horas preciosas lendo, priorizando e respondendo a cada mensagem, muitas das quais são informativas e não exigem ação. Esse processo manual é lento, caro e propenso a erros.
 
-**O que aconteceu?** Caos criativo! 😂
+## ✨ A Solução
 
-- O modelo começou a "alucinar", inventando informações que não estavam no e-mail original (como o infame "tickle de ouro").
-- Em outros testes, ele entrava em loops de repetição ou simplesmente copiava trechos do e-mail de entrada.
+Este projeto ataca o problema com uma abordagem de duas camadas de Inteligência Artificial:
 
-**A Solução:** Percebi que, para um ambiente de negócios, **confiabilidade é mais importante que criatividade.** Tomei a decisão de engenharia de pivotar a estratégia: usar a IA para a tarefa mais complexa (classificação) e usar templates robustos em Python para as respostas. Isso garante respostas 100% precisas, profissionais e alinhadas com o tom de voz da empresa.
+1.  **Classificação de Intenção:** A aplicação lê o conteúdo do e-mail (texto ou PDF) e o classifica automaticamente como **Produtivo** (exige uma ação, como um pedido de suporte) ou **Improdutivo** (um agradecimento ou aviso).
+2.  **Extração de Dados:** Para e-mails que exigem uma resposta, a IA identifica e extrai o **nome do remetente** na assinatura para personalizar a comunicação.
+3.  **Resposta Inteligente:** Com base na classificação e nos dados extraídos, o sistema sugere uma resposta profissional, consistente e personalizada, pronta para ser enviada.
 
-### O Segundo Desafio: A Ambiguidade da Classificação
+O resultado é uma ferramenta que economiza tempo, padroniza a comunicação e permite que a equipe foque em tarefas de maior valor.
 
-O classificador inicial, um modelo `zero-shot`, funcionava bem para casos óbvios, mas falhava em e-mails mais sutis, gerando um "pingue-pongue":
+---
 
-1.  Com `labels` mais genéricas, ele não conseguia identificar e-mails produtivos que usavam linguagem indireta.
-2.  Com `labels` mais fortes e focadas em "ação", ele se tornava sensível demais e classificava e-mails informativos (FYI) como produtivos por causa de palavras-chave como "próximos passos".
+## 👨‍💻 Minha Jornada e Decisões Técnicas
 
-**A Solução:** A abordagem `zero-shot` se mostrou inconsistente para os casos de borda. A solução definitiva foi trocar de ferramenta e adotar um **modelo especialista**, treinado especificamente para análise de sentimento (`nlptown/bert-base-multilingual-uncased-sentiment`). Combinado com uma lógica de palavras-chave para os casos neutros, ele se mostrou muito mais robusto e consistente para entender a real intenção do texto.
+Construir uma solução de IA robusta envolve mais do que apenas escolher um modelo. A jornada neste projeto foi um ciclo de testes, aprendizados e decisões de engenharia para garantir a melhor performance.
 
-### O Toque Final: Personalização Inteligente
+#### Desafio 1: A Inconsistência do Classificador `Zero-Shot`
+Inicialmente, optei por um modelo de classificação *zero-shot* pela sua flexibilidade. No entanto, em testes com e-mails mais complexos e ambíguos, sua performance oscilava muito. Um e-mail informativo com palavras como "próximos passos" era classificado como produtivo, enquanto um pedido real com um tom muito sutil era ignorado.
 
-Para ir além do básico, decidi que a aplicação deveria personalizar a saudação. Isso me levou ao mundo do **NER (Named Entity Recognition)**. O desafio era extrair _apenas_ o nome, ignorando cargos e outras informações da assinatura. Após alguns testes, desenvolvi uma função que:
+**➡️ Decisão:** Troquei o modelo generalista por um **especialista em análise de sentimento** (`nlptown/bert-base-multilingual-uncased-sentiment`). A abordagem mudou de "adivinhar a categoria" para "analisar a intenção (positiva, negativa, neutra)". Combinei isso com uma lógica de palavras-chave para os casos neutros, o que tornou a classificação muito mais estável e confiável.
 
-1.  Foca apenas nas últimas linhas do e-mail.
-2.  Usa o modelo NER para encontrar entidades de "Pessoa".
-3.  Aplica uma "blacklist" de cargos comuns para limpar o resultado, garantindo que a saudação seja sempre natural e profissional.
+#### Desafio 2: A imprevisibilidade da Geração de Texto
+Para as respostas, testei modelos generativos como `T5` e `mT0`. Os resultados eram imprevisíveis: às vezes a IA "alucinava" e inventava informações, outras vezes entrava em loops de repetição.
+
+**➡️ Decisão:** Para uma aplicação de negócios, a consistência é rei. Abandonei a geração de texto via IA e implementei um sistema de **templates inteligentes em Python**. A IA faz a parte difícil (classificar e extrair o nome), e o sistema garante que a resposta seja sempre 100% correta, profissional e segura, eliminando qualquer risco de erro.
+
+#### Desafio 3: A Personalização da Saudação
+Para ir além, adicionei a extração de nomes com um modelo **NER (Named Entity Recognition)**. O desafio era capturar apenas o nome, ignorando cargos ("Gerente de Vendas") e outras informações.
+
+**➡️ Decisão:** Implementei uma função com uma lógica de "limpeza" em duas etapas: ela primeiro remove saudações comuns ("Atenciosamente,") e depois aplica uma "blacklist" de cargos sobre o nome extraído pela IA. O resultado é uma saudação limpa e natural.
+
+---
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Backend:**
-  - **Python 3.11+**
-  - **Flask:** Para criar o servidor e a API.
-- **Inteligência Artificial:**
-  - **Hugging Face Transformers:** A biblioteca principal para acessar os modelos de IA.
-  - **`nlptown/bert-base-multilingual-uncased-sentiment`:** Modelo especialista para a classificação de e-mails.
-  - **`dslim/bert-base-NER`:** Modelo especialista para extração de nomes de pessoas.
-- **Frontend:**
-  - **HTML5, CSS3, JavaScript (puro)**
-  - **Fetch API:** Para a comunicação assíncrona com o backend.
-- **Utilitários:**
-  - **PyPDF2:** Para a extração de texto de arquivos PDF.
+| Categoria | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Backend** | Python & Flask | Servidor web leve e API para processar as requisições. |
+| **IA (Classificação)** | Transformers (Hugging Face) | `nlptown/bert-base-multilingual-uncased-sentiment` para análise de intenção. |
+| **IA (Extração)** | Transformers (Hugging Face) | `dslim/bert-base-NER` para reconhecimento de nomes de pessoas. |
+| **Frontend** | HTML, CSS, JavaScript | Interface de usuário limpa e interativa, sem a necessidade de frameworks. |
+| **Utilitários** | PyPDF2 | Extração de texto de documentos PDF enviados pelos usuários. |
+
+---
 
 ## 🚀 Como Executar Localmente
 
 Siga os passos abaixo para ter o projeto rodando em sua máquina.
 
 **Pré-requisitos:**
-
-- Python 3.8 ou superior
-- Git
+-   Python 3.8+
+-   Git
 
 **Passos:**
-
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITORIO]
-    cd [NOME_DA_PASTA_DO_PROJETO]
+    git clone [https://github.com/joaosousa021/email-classifier-nlp.git](https://github.com/joaosousa021/email-classifier-nlp.git)
+    cd email-classifier-nlp
     ```
 2.  **Crie e ative um ambiente virtual:**
-
     ```bash
     # Cria o ambiente
     python -m venv venv
@@ -81,13 +85,12 @@ Siga os passos abaixo para ter o projeto rodando em sua máquina.
     # Ativa no Windows (PowerShell)
     .\venv\Scripts\activate
     ```
-
-3.  **Instale as dependências do projeto:**
+3.  **Instale as dependências:**
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Execute a aplicação Flask:**
+4.  **Execute a aplicação:**
     ```bash
     python -m flask run
     ```
-5.  Pronto! Agora é só acessar **`http://127.0.0.1:5000`** no seu navegador.
+5.  Pronto! Acesse **`http://1227.0.0.1:5000`** no seu navegador.
