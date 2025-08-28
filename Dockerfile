@@ -1,7 +1,8 @@
-
 FROM python:3.11-slim
 
 WORKDIR /app
+
+ENV HF_HOME /app/.cache
 
 COPY requirements.txt .
 
