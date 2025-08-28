@@ -1,44 +1,34 @@
+# core/logica_ia.py (VERSÃO DE DEBUG - PARA FORÇAR O ERRO A APARECER)
 import re
 from transformers import pipeline
-
 
 classifier = None
 ner_pipeline = None
 
 def _inicializar_modelos_se_necessario():
-    
     global classifier, ner_pipeline
 
     if classifier is None:
-        try:
-            print("LAZY LOADING: Carregando modelo de classificação...")
-            classifier = pipeline(
-                "sentiment-analysis",
-                model="nlptown/bert-base-multilingual-uncased-sentiment"
-            )
-            print("Modelo de classificação carregado.")
-        except Exception as e:
-            print(f"Erro fatal ao carregar o modelo de classificação: {e}")
+        print("DEBUG: Tentando carregar modelo de classificação...")
+        classifier = pipeline(
+            "sentiment-analysis",
+            model="nlptown/bert-base-multilingual-uncased-sentiment"
+        )
+        print("DEBUG: Modelo de classificação carregado com sucesso.")
 
     if ner_pipeline is None:
-        try:
-            print("LAZY LOADING: Carregando modelo NER...")
-            ner_pipeline = pipeline(
-                "ner",
-                model="dslim/bert-base-NER"
-            )
-            print("Modelo NER carregado.")
-        except Exception as e:
-            print(f"Erro fatal ao carregar o modelo NER: {e}")
+        print("DEBUG: Tentando carregar modelo NER...")
+        ner_pipeline = pipeline(
+            "ner",
+            model="dslim/bert-base-NER"
+        )
+        print("DEBUG: Modelo NER carregado com sucesso.")
 
 
 def classificar_email(texto):
-
     _inicializar_modelos_se_necessario()
-
     if not classifier:
         return "Erro: Modelo de classificação não carregado."
-
     try:
         resultado = classifier(texto)
         rating = resultado[0]['label']
@@ -63,54 +53,47 @@ def classificar_email(texto):
 
 def extrair_nome(texto):
     _inicializar_modelos_se_necessario()
-    
     if not ner_pipeline:
         return None
-
     try:
-       
+        # A lógica interna de extração permanece a mesma
         linhas = texto.strip().split('\n')
         linhas_finais = linhas[-4:]
         linhas_finais.reverse()
-
         blacklist_cargos = [
-            'gerente', 'coordenador', 'coordenadora', 'diretor', 'diretora',
-            'analista', 'presidente', 'ceo', 'cto', 'cfo', 'desenvolvedor',
-            'desenvolvedora', 'de', 'engenheiro', 'engenheira', 'vendas',
-            'marketing', 'suporte', 'rh', 'cio'
+            'gerente', 'coordenador', 'coordenadora', 'diretor', 'diretora', 'analista', 
+            'presidente', 'ceo', 'cto', 'cfo', 'desenvolvedor', 'desenvolvedora', 'de',
+            'engenheiro', 'engenheira', 'vendas', 'marketing', 'suporte', 'rh', 'cio'
         ]
-
         for linha in linhas_finais:
-            saudacoes = [
-                "Atenciosamente,", "Atenciosamente", "Grato,", "Grato",
-                "Obrigado,", "Obrigado", "Abraços,", "Abraços", "Att,"
-            ]
+            saudacoes = ["Atenciosamente,", "Atenciosamente", "Grato,", "Grato", "Obrigado,", "Obrigado", "Abraços,", "Abraços", "Att,"]
             linha_limpa = linha
             for saudacao in saudacoes:
-                linha_limpa = re.sub(
-                    r'^\s*' + saudacao, '', linha_limpa, flags=re.IGNORECASE
-                ).strip()
-
+                linha_limpa = re.sub(r'^\s*' + saudacao, '', linha_limpa, flags=re.IGNORECASE).strip()
             if not linha_limpa:
                 continue
-
             entidades = ner_pipeline(linha_limpa)
-            nome_tokens = [
-                token['word'] for token in entidades
-                if token['entity'].startswith(('B-PER', 'I-PER'))
-            ]
-
-            if nome_tokens:
+            nome_tokens = []
+            tem_pessoa = False
+            for token in entidades:
+                if token['entity'].startswith('B-PER') or token['entity'].startswith('I-PER'):
+                    nome_tokens.append(token['word'])
+                    tem_pessoa = True
+            if tem_pessoa:
                 nome_bruto = ""
                 for token in nome_tokens:
-                    nome_bruto += token.replace('##', '') if token.startswith('##') else f" {token}"
+                    if token.startswith('##'):
+                        nome_bruto += token.replace('##', '')
+                    else:
+                        nome_bruto += " " + token
                 nome_bruto = nome_bruto.strip()
-
+                contem_cargo = False
                 palavras_nome = nome_bruto.lower().split()
-                if any(palavra in palavras_nome for palavra in blacklist_cargos):
-                    continue
-                
-                if len(nome_bruto) > 2:
+                for palavra in palavras_nome:
+                    if palavra in blacklist_cargos:
+                        contem_cargo = True
+                        break
+                if not contem_cargo and len(nome_bruto) > 2:
                     return nome_bruto
         return None
     except Exception as e:
