@@ -1,4 +1,4 @@
-# core/logica_ia.py (VERSÃO DE DEBUG - PARA FORÇAR O ERRO A APARECER)
+
 import re
 from transformers import pipeline
 
@@ -6,23 +6,30 @@ classifier = None
 ner_pipeline = None
 
 def _inicializar_modelos_se_necessario():
+    
     global classifier, ner_pipeline
 
     if classifier is None:
-        print("DEBUG: Tentando carregar modelo de classificação...")
-        classifier = pipeline(
-            "sentiment-analysis",
-            model="nlptown/bert-base-multilingual-uncased-sentiment"
-        )
-        print("DEBUG: Modelo de classificação carregado com sucesso.")
+        try:
+            print("LAZY LOADING: Carregando modelo de classificação...")
+            classifier = pipeline(
+                "sentiment-analysis",
+                model="nlptown/bert-base-multilingual-uncased-sentiment"
+            )
+            print("Modelo de classificação carregado.")
+        except Exception as e:
+            print(f"Erro fatal ao carregar o modelo de classificação: {e}")
 
     if ner_pipeline is None:
-        print("DEBUG: Tentando carregar modelo NER...")
-        ner_pipeline = pipeline(
-            "ner",
-            model="dslim/bert-base-NER"
-        )
-        print("DEBUG: Modelo NER carregado com sucesso.")
+        try:
+            print("LAZY LOADING: Carregando modelo NER...")
+            ner_pipeline = pipeline(
+                "ner",
+                model="dslim/bert-base-NER"
+            )
+            print("Modelo NER carregado.")
+        except Exception as e:
+            print(f"Erro fatal ao carregar o modelo NER: {e}")
 
 
 def classificar_email(texto):
@@ -56,7 +63,7 @@ def extrair_nome(texto):
     if not ner_pipeline:
         return None
     try:
-        # A lógica interna de extração permanece a mesma
+       
         linhas = texto.strip().split('\n')
         linhas_finais = linhas[-4:]
         linhas_finais.reverse()
