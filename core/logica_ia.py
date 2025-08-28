@@ -2,38 +2,26 @@
 import re
 from transformers import pipeline
 
-classifier = None
-ner_pipeline = None
 
-def _inicializar_modelos_se_necessario():
-    
-    global classifier, ner_pipeline
-
-    if classifier is None:
-        try:
-            print("LAZY LOADING: Carregando modelo de classificação...")
-            classifier = pipeline(
-                "sentiment-analysis",
-                model="nlptown/bert-base-multilingual-uncased-sentiment"
-            )
-            print("Modelo de classificação carregado.")
-        except Exception as e:
-            print(f"Erro fatal ao carregar o modelo de classificação: {e}")
-
-    if ner_pipeline is None:
-        try:
-            print("LAZY LOADING: Carregando modelo NER...")
-            ner_pipeline = pipeline(
-                "ner",
-                model="dslim/bert-base-NER"
-            )
-            print("Modelo NER carregado.")
-        except Exception as e:
-            print(f"Erro fatal ao carregar o modelo NER: {e}")
+try:
+    print("Carregando modelo de classificação do cache...")
+    classifier = pipeline(
+        "sentiment-analysis",
+        model="nlptown/bert-base-multilingual-uncased-sentiment"
+    )
+    print("Carregando modelo NER do cache...")
+    ner_pipeline = pipeline(
+        "ner",
+        model="dslim/bert-base-NER"
+    )
+    print("Modelos carregados com sucesso.")
+except Exception as e:
+    print(f"Erro fatal ao carregar os modelos: {e}")
+    classifier = None
+    ner_pipeline = None
 
 
 def classificar_email(texto):
-    _inicializar_modelos_se_necessario()
     if not classifier:
         return "Erro: Modelo de classificação não carregado."
     try:
@@ -59,11 +47,10 @@ def classificar_email(texto):
 
 
 def extrair_nome(texto):
-    _inicializar_modelos_se_necessario()
     if not ner_pipeline:
-        return None
+        return "Erro: Modelo NER não carregado."
     try:
-       
+        
         linhas = texto.strip().split('\n')
         linhas_finais = linhas[-4:]
         linhas_finais.reverse()
