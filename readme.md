@@ -1,3 +1,13 @@
+---
+title: Classificador Inteligente de E-mails
+emoji: 📧
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_file: app.py
+pinned: false
+---
+
 # Classificador Inteligente de E-mails - Desafio AutoU 🚀
 
 ![Status](https://img.shields.io/badge/status-finalizado-brightgreen)
