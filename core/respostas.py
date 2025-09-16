@@ -1,7 +1,6 @@
 import re
 
-# Mapeamento de palavras-chave para intenções. A ordem é importante.
-# Colocamos os mais específicos primeiro.
+
 INTENCOES_PRODUTIVO = {
     'agendamento': [r'reunião', r'reuniao', r'call', r'conversar', r'agenda', r'horário', r'horario'],
     'demonstracao': [r'demonstração', r'demonstracao', r'demo', r'apresentação', r'apresentacao'],
@@ -20,13 +19,8 @@ def gerar_resposta(categoria, nome_remetente=None):
         return "Nenhuma ação é necessária para este e-mail. Sugestão: Arquivar."
     
     if categoria == 'produtivo':
-        # Esta função será chamada se a categoria for produtiva
-        # O 'texto_email_original' precisa ser passado do app.py
-        # Como não temos acesso aqui, vamos criar uma função separada.
-        # Por enquanto, uma resposta padrão para produtivo.
         return f"Olá {nome}agradecemos o seu contato. Nossa equipe já está analisando sua mensagem e retornará em breve."
 
-    # Categoria padrão (caso haja outras no futuro)
     return "Resposta padrão para categoria desconhecida."
 
 
@@ -37,13 +31,12 @@ def gerar_resposta_produtiva(texto_email, nome_remetente=None):
     texto_email_lower = texto_email.lower()
     nome = f"{nome_remetente}, " if nome_remetente else ""
 
-    # Itera sobre as intenções para ver se encontra uma correspondência
     for intencao, palavras_chave in INTENCOES_PRODUTIVO.items():
         for palavra in palavras_chave:
             if re.search(r'\b' + palavra + r'\b', texto_email_lower):
                 return criar_resposta_por_intencao(intencao, nome)
 
-    # Se nenhuma intenção específica for encontrada, retorna uma resposta geral positiva
+
     return (f"Olá {nome}agradecemos o seu interesse! Sua mensagem foi recebida e nossa equipe "
             "comercial entrará em contato o mais breve possível para dar andamento.")
 
