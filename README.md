@@ -1,9 +1,10 @@
-# Classificador Inteligente de E-mails - Desafio AutoU 🚀
+# Classificador Inteligente de E-mails com IA 🚀
 
 ![Status](https://img.shields.io/badge/status-finalizado-brightgreen)
-![Tecnologia](https://img.shields.io/badge/tecnologia-Python%20%7C%20Flask%20%7C%20IA-blue)
+![Tecnologia](https://img.shields.io/badge/tecnologia-Python%20%7C%20Flask%20%7C%20Scikit--learn-blue)
+![Accuracy](https://img.shields.io/badge/acurácia-98%25-informational)
 
-Uma aplicação web full-stack que utiliza Inteligência Artificial para automatizar a triagem e resposta de e-mails, transformando um processo manual e demorado em uma tarefa inteligente e instantânea.
+Uma aplicação web full-stack que utiliza Machine Learning para automatizar a triagem e resposta de e-mails, transformando um processo manual e demorado em uma tarefa inteligente e instantânea com 98% de acurácia.
 
 ---
 
@@ -15,54 +16,50 @@ Uma aplicação web full-stack que utiliza Inteligência Artificial para automat
 
 ## 💡 O Problema a Ser Resolvido
 
-Empresas do setor financeiro lidam com um volume altíssimo de e-mails diariamente. Uma equipe gasta horas preciosas lendo, priorizando e respondendo a cada mensagem, muitas das quais são informativas e não exigem ação. Esse processo manual é lento, caro e propenso a erros.
+Empresas lidam com um volume altíssimo de e-mails diariamente. Uma equipe gasta horas preciosas lendo e priorizando cada mensagem. O desafio é criar uma ferramenta que possa distinguir rapidamente e-mails que exigem ação imediata (produtivos) daqueles que são apenas informativos ou dispensáveis (improdutivos).
 
 ## ✨ A Solução
 
-Este projeto ataca o problema com uma abordagem de duas camadas de Inteligência Artificial:
+Este projeto ataca o problema com um pipeline de Machine Learning e processamento de linguagem natural:
 
-1.  **Classificação de Intenção:** A aplicação lê o conteúdo do e-mail (texto ou PDF) e o classifica automaticamente como **Produtivo** (exige uma ação, como um pedido de suporte) ou **Improdutivo** (um agradecimento ou aviso).
-2.  **Extração de Dados:** Para e-mails que exigem uma resposta, a IA identifica e extrai o **nome do remetente** na assinatura para personalizar a comunicação.
-3.  **Resposta Inteligente:** Com base na classificação e nos dados extraídos, o sistema sugere uma resposta profissional, consistente e personalizada, pronta para ser enviada.
+1.  **Classificação de Intenção:** A aplicação lê o conteúdo do e-mail (texto ou PDF) e o classifica com **98% de acurácia** como **Produtivo** (exige uma ação) ou **Improdutivo** (um aviso, agradecimento ou recusa).
+2.  **Resposta Inteligente e Contextual:** Para e-mails produtivos, o sistema vai além. Ele identifica a intenção principal (pedido de reunião, proposta, dúvida técnica) e sugere uma resposta profissional e adaptada ao contexto, pronta para ser enviada.
 
-O resultado é uma ferramenta que economiza tempo, padroniza a comunicação e permite que a equipe foque em tarefas de maior valor.
+O resultado é uma ferramenta que economiza tempo, padroniza a comunicação e permite que a equipe foque em e-mails que realmente geram valor.
 
 ---
 
 ## 👨‍💻 Minha Jornada e Decisões Técnicas
 
-Construir uma solução de IA robusta envolve mais do que apenas escolher um modelo. A jornada neste projeto foi um ciclo de testes, aprendizados e decisões de engenharia para garantir a melhor performance.
+Construir uma solução de IA robusta é um processo iterativo. A jornada neste projeto foi um ciclo de diagnóstico, estratégia e otimização para alcançar a máxima performance.
 
-#### Desafio 1: A Inconsistência do Classificador `Zero-Shot`
+#### Desafio 1: A Baixa Confiabilidade de um Modelo Generalista
 
-Inicialmente, optei por um modelo de classificação _zero-shot_ pela sua flexibilidade. No entanto, em testes com e-mails mais complexos e ambíguos, sua performance oscilava muito. Um e-mail informativo com palavras como "próximos passos" era classificado como produtivo, enquanto um pedido real com um tom muito sutil era ignorado.
+A primeira abordagem foi um modelo que tentava classificar e-mails em 5 categorias diferentes (`interessado`, `dúvida`, `não interessado`, etc.). Os testes mostraram que, com um dataset limitado, o modelo era inconsistente, com uma acurácia de apenas **40%**. Ele tinha grande dificuldade em diferenciar as nuances entre as categorias.
 
-**➡️ Decisão:** Troquei o modelo generalista por um **especialista em análise de sentimento** (`nlptown/bert-base-multilingual-uncased-sentiment`). A abordagem mudou de "adivinhar a categoria" para "analisar a intenção (positiva, negativa, neutra)". Combinei isso com uma lógica de palavras-chave para os casos neutros, o que tornou a classificação muito mais estável e confiável.
+**➡️ Insight e Decisão:** A IA precisava de mais dados para aprender, mas o problema principal era a complexidade da tarefa. A decisão estratégica foi simplificar o problema. Em vez de 5 classes, o foco passou a ser resolver a questão de negócio mais importante: **"Este e-mail precisa de uma ação ou não?"**.
 
-#### Desafio 2: A imprevisibilidade da Geração de Texto
+#### Desafio 2: Dados Desbalanceados e Treinamento
 
-Para as respostas, testei modelos generativos como `T5` e `mT0`. Os resultados eram imprevisíveis: às vezes a IA "alucinava" e inventava informações, outras vezes entrava em loops de repetição.
+Ao focar em duas classes (`produtivo` e `improdutivo`), o próximo desafio era a qualidade dos dados. O dataset inicial era pequeno e desbalanceado, fazendo com que o modelo ficasse "viciado" em uma categoria e ignorasse as outras.
 
-**➡️ Decisão:** Para uma aplicação de negócios, a consistência é rei. Abandonei a geração de texto via IA e implementei um sistema de **templates inteligentes em Python**. A IA faz a parte difícil (classificar e extrair o nome), e o sistema garante que a resposta seja sempre 100% correta, profissional e segura, eliminando qualquer risco de erro.
+**➡️ Insight e Decisão:** A performance de um modelo é um reflexo direto da qualidade de seus dados. O trabalho foi focado em **aumentar e balancear o dataset**, garantindo que ambas as classes tivessem um número robusto e variado de exemplos (mais de 250 no total). O código de treinamento foi estruturado em um pipeline `Scikit-learn` com `TfidfVectorizer` e `LinearSVC`, permitindo um ciclo rápido de re-treinamento a cada melhoria nos dados.
 
-#### Desafio 3: A Personalização da Saudação
+#### O Resultado: Um Salto para 98% de Acurácia
 
-Para ir além, adicionei a extração de nomes com um modelo **NER (Named Entity Recognition)**. O desafio era capturar apenas o nome, ignorando cargos ("Gerente de Vendas") e outras informações.
-
-**➡️ Decisão:** Implementei uma função com uma lógica de "limpeza" em duas etapas: ela primeiro remove saudações comuns ("Atenciosamente,") e depois aplica uma "blacklist" de cargos sobre o nome extraído pela IA. O resultado é uma saudação limpa e natural.
+Após o balanceamento dos dados e a simplificação estratégica do problema, o modelo foi treinado novamente. O resultado foi um salto de performance de 40% para **98% de acurácia**, com métricas de precisão e recall igualmente altas. Isso validou a abordagem e resultou em um classificador confiável e pronto para uso.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-| Categoria              | Tecnologia                   | Descrição                                                                    |
-| :--------------------- | :--------------------------- | :--------------------------------------------------------------------------- |
-| **Backend**            | Python & Flask               | Servidor web leve e API para processar as requisições.                       |
-| **IA (Classificação)** | Transformers (Hugging Face)  | `nlptown/bert-base-multilingual-uncased-sentiment` para análise de intenção. |
-| **IA (Extração)**      | Transformers (Hugging Face)  | `dslim/bert-base-NER` para reconhecimento de nomes de pessoas.               |
-| **Frontend**           | HTML, CSS, JavaScript        | Interface de usuário limpa e interativa, sem a necessidade de frameworks.    |
-| **Utilitários**        | PyPDF2                       | Extração de texto de documentos PDF enviados pelos usuários.                 |
-| **Deploy**             | Docker & Hugging Face Spaces | Conteinerização da aplicação para um deploy robusto e otimizado para IA.     |
+| Categoria | Tecnologia | Descrição |
+| :--- | :--- | :--- |
+| **Backend** | Python & Flask | Servidor web leve e API para processar as requisições. |
+| **IA (Machine Learning)** | Scikit-learn & Pandas | Pipeline de classificação de texto treinado com `LinearSVC` para máxima performance. |
+| **Frontend** | HTML, CSS, JavaScript | Interface de usuário limpa e interativa para uma ótima experiência. |
+| **Utilitários** | Joblib, PyPDF2 | Serialização do modelo treinado e extração de texto de documentos PDF. |
+| **Deploy** | Docker & Hugging Face Spaces | Conteinerização da aplicação para um deploy robusto e otimizado. |
 
 ---
 
@@ -83,7 +80,6 @@ Siga os passos abaixo para ter o projeto rodando em sua máquina.
     cd email-classifier-nlp
     ```
 2.  **Crie e ative um ambiente virtual:**
-
     ```bash
     # Cria o ambiente
     python -m venv venv
@@ -91,13 +87,16 @@ Siga os passos abaixo para ter o projeto rodando em sua máquina.
     # Ativa no Windows (PowerShell)
     .\venv\Scripts\activate
     ```
-
 3.  **Instale as dependências:**
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Execute a aplicação:**
+4.  **Treine o modelo (necessário apenas na primeira vez):**
     ```bash
-    python -m flask run
+    python train_model.py
     ```
-5.  Pronto! Acesse **`http://127.0.0.1:5000`** no seu navegador.
+5.  **Execute a aplicação:**
+    ```bash
+    python app.py
+    ```
+6.  Pronto! Acesse **`http://12.0.0.1:5000`** no seu navegador.
