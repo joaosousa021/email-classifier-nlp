@@ -100,9 +100,9 @@
             document.getElementById("resposta").innerText =
               result.resposta_sugerida;
 
-            if (result.categoria === "Produtivo") {
+            if (result.categoria === "produtivo") {
               resultsDiv.classList.add("border-produtivo");
-            } else if (result.categoria === "Improdutivo") {
+            } else if (result.categoria === "improdutivo") {
               resultsDiv.classList.add("border-improdutivo");
             }
             resultsDiv.style.display = "block";
